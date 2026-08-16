@@ -20,6 +20,17 @@ A lightweight, multi-threaded Python utility designed to scan, analyze, and inte
 - ⚙️ Automatic Audit Logging: Automatically writes formatted audit reports and timestamps directly to the logs/ directory.
 - 📜 Zero External Dependencies: Developed entirely using the Python Standard Library for maximum portability and instant execution.
 
+## Prerequisites
+
+- **Python:** Version 3.x or higher is required.
+- **Terminal:** Access to a command-line interface (e.g., VS Code, terminal).
+
+## Installation & Setup
+
+1.  **Clone:** `git clone https://github.com/mohamedtechturf/Netpreter`
+2.  **Navigate:** `cd Netpreter`
+4.  **Execute:** Run `python main.py` and enter the target URL when prompted.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
