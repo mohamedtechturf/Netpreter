@@ -1,4 +1,3 @@
-
 # Netpreter — Network Security & Configuration Audit Tool
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
@@ -83,8 +82,6 @@ Netpreter/
 │   ├── scanner.py           # target resolution + concurrent scan engine
 │   ├── report.py            # text/JSON/CSV report rendering & export
 │   └── cli.py                # argument parsing + interactive menu
-├── tests/
-│   └── test_netpreter.py    # unit + local-loopback integration tests
 └── logs/                     # timestamped audit reports (created at runtime)
 ```
 
@@ -101,6 +98,19 @@ Netpreter/
    the database still show up as unrecognized findings.
 4. **Report** — findings are sorted by severity, summarized per host and
    overall, and rendered to text, JSON, or CSV.
+
+## Limitations & Roadmap
+
+### Netpreter is actively developed. The current version has the following limitations, which are planned for future roadmap upgrades:
+
+- **Exposure Detection Only (No Active Exploit Verification)**: Netpreter detects *exposure* (an open port and service presence), not confirmed *exploitability*. It does not actively launch payloads or confirm if a service is vulnerable to specific CVEs. Treat findings as a starting point for further authenticated review.
+- **No Local Network Infrastructure or Wi-Fi Auditing**: The tool scans network layers via host sockets. It does not audit local infrastructure settings, physical router configurations, or wireless network security protocols (e.g., it cannot detect if a router is running outdated, vulnerable WPA/WPA2 wireless encryption instead of WPA3). Legacy infrastructure updates must be audited manually.
+- **No Authentication or Password Security Auditing**: The tool does not test for weak/default credentials, execute brute-force password checks, or evaluate the strength of access control mechanics on exposed ports.
+- **TCP-Connect Engine Only**: The architecture currently relies on standard TCP three-way handshakes. Deeper stealth scanning techniques (like SYN/FIN half-open scans) or UDP port auditing are not yet implemented.
+- **No Active OS Detection**: Active operating system fingerprinting is outside the current scope. System intelligence is strictly limited to passive service banner grabbing.
+- **IPv4-Centric Scanning**: While foundational address validation logic supports both IPv4 and IPv6 patterns, the core socket handling engine currently only operates end-to-end over IPv4 networks.
+- **Per-Host Thread Distribution**: Multi-threading optimizations are designed to scale concurrently *across multiple target hosts* rather than utilizing aggressive multi-threading against a single individual host.
+
 
 ## License
 
