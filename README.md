@@ -26,7 +26,7 @@ banners, and produces ranked, actionable remediation reports.
   automatically, with a safety cap to prevent accidental huge scans.
 - **Flexible port selection** — the curated `top` list, explicit
   comma-separated ports, numeric ranges (`1-1024`), or any mix of these.
-- **Passive banner capture** — reads (never sends) the greeting a
+- **banner capture** — reads the greeting a
   service offers on connect, for extra triage context.
 - **Multi-format reporting** — human-readable text, structured JSON, or
   CSV, printed to the console and saved to a timestamped file.
