@@ -111,6 +111,12 @@ Netpreter/
 - **IPv4-Centric Scanning**: While foundational address validation logic supports both IPv4 and IPv6 patterns, the core socket handling engine currently only operates end-to-end over IPv4 networks.
 - **Per-Host Thread Distribution**: Multi-threading optimizations are designed to scale concurrently *across multiple target hosts* rather than utilizing aggressive multi-threading against a single individual host.
 
+## Legal Disclaimer & Ethical Use
+
+This tool is developed strictly for **educational, academic, and authorized ethical testing purposes**. Scanning networks or hosts without explicit, prior written permission from the owner is illegal and constitutes a breach of computer crime laws. 
+
+The developer assumes **absolute zero liability** and is not responsible for any misuse, damage, system disruption, or illegal activity caused by this software. By cloning, downloading, or executing Netpreter, you agree to utilize it solely within authorized scopes.
+
 
 ## License
 
