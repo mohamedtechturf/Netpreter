@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com" width="300" alt="Netpreter" />
+  <img src="https://github.com/user-attachments/assets/3cad04ca-b235-4a6b-b059-71f464e7adb6" width="300" alt="Netpreter" />
 </p>
 
 # Netpreter — Network Security & Configuration Audit Tool
