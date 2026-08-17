@@ -12,7 +12,7 @@
 # Netpreter — Network Security & Configuration Audit Tool
 
 A lightweight, multi-threaded Python utility for perimeter security audits
-of hosts and small network ranges you own or are authorized to test. It
+of hosts and small network ranges. It
 checks for commonly-exposed, high-risk TCP services, correlates results
 against a curated risk database, optionally captures passive service
 banners, and produces ranked, actionable remediation reports.
