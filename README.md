@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/3cad04ca-b235-4a6b-b059-71f464e7adb6" width="300" alt="Netpreter" />
-</p>
-
-# Netpreter — Network Security & Configuration Audit Tool
+<img width="5120" height="1280" alt="logo" src="https://github.com/user-attachments/assets/4c672463-26f5-4b66-845d-9b4b219f46e0" />
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 ![Linux](https://img.shields.io/badge/Supports-Linux-orange.svg)
@@ -10,6 +6,8 @@
 ![windows](https://img.shields.io/badge/Supports-Windows-blue.svg)
 [![github](https://img.shields.io/badge/github-repo-white?logo=github)](https://github.com/mohamedtechturf/Netpreter)
 ![Python](https://img.shields.io/badge/python-3.14.7-blue?logo=python)
+
+# Netpreter — Network Security & Configuration Audit Tool
 
 A lightweight, multi-threaded Python utility for perimeter security audits
 of hosts and small network ranges you own or are authorized to test. It
