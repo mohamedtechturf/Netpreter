@@ -1,4 +1,6 @@
-<img width="5120" height="1280" alt="logo" src="https://github.com/user-attachments/assets/4c672463-26f5-4b66-845d-9b4b219f46e0" />
+<a href="https://github.com/mohamedtechturf/Netpreter">
+  <img alt="Netpreter" src="https://github.com/user-attachments/assets/4c672463-26f5-4b66-845d-9b4b219f46e0" width="100%">
+</a>
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 ![Linux](https://img.shields.io/badge/Supports-Linux-orange.svg)
