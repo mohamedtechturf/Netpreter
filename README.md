@@ -7,7 +7,7 @@
 ![macOS](https://img.shields.io/badge/Supports-macOS-white.svg)
 ![windows](https://img.shields.io/badge/Supports-Windows-blue.svg)
 [![github](https://img.shields.io/badge/github-repo-white?logo=github)](https://github.com/mohamedtechturf/Netpreter)
-![Python](https://img.shields.io/badge/python-3.14.7-blue?logo=python)
+![Python](https://img.shields.io/badge/python-3.10-blue?logo=python)
 
 # Netpreter — Network Security & Configuration Audit Tool
 
@@ -47,7 +47,7 @@ banners, and produces ranked, actionable remediation reports.
 
 1.  **Clone:** `git clone https://github.com/mohamedtechturf/Netpreter`
 2.  **Navigate:** `cd Netpreter`
-4.  **Execute:** Run `python main.py` and enter the target URL when prompted.
+4.  **Execute:** Run `python main.py` and enter the target hostname, IP address, or CIDR range when prompted.
 
 ## Usage
 
