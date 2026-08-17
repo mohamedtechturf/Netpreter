@@ -1,4 +1,6 @@
-<img width="3415" height="521" alt="-" src="https://github.com/user-attachments/assets/3cad04ca-b235-4a6b-b059-71f464e7adb6" />
+<p align="center">
+  <img src="https://github.com" width="300" alt="Netpreter" />
+</p>
 
 # Netpreter — Network Security & Configuration Audit Tool
 
