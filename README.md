@@ -7,7 +7,7 @@
 ![macOS](https://img.shields.io/badge/Supports-macOS-white.svg)
 ![windows](https://img.shields.io/badge/Supports-Windows-blue.svg)
 [![github](https://img.shields.io/badge/github-repo-white?logo=github)](https://github.com/mohamedtechturf/Netpreter)
-![Python](https://img.shields.io/badge/python-3.10-blue?logo=python)
+![Python](https://img.shields.io/badge/python-3.x-blue?logo=python)
 
 # Netpreter — Network Security & Configuration Audit Tool
 
