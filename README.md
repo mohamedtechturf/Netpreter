@@ -15,7 +15,8 @@ A lightweight, multi-threaded Python utility for perimeter security audits
 of hosts and small network ranges. It
 checks for commonly-exposed, high-risk TCP services, correlates results
 against a curated risk database, optionally captures passive service
-banners, and produces ranked, actionable remediation reports.
+banners, and produces ranked, actionable remediation reports — from the
+command line or from a local browser dashboard.
 
 
 ## Features
@@ -24,7 +25,8 @@ banners, and produces ranked, actionable remediation reports.
   per-host live progress bar.
 - **Curated risk database** mapping 25+ common ports (SSH, RDP, SMB,
   Redis, MongoDB, Elasticsearch, etc.) to severity, plain-language
-  impact, and specific remediation steps.
+  impact, and specific remediation steps — plus a curated CVE
+  cross-reference — persisted in a local SQLite database (`netpreter.db`).
 - **Multiple targets per run** — single host, comma-separated list, or a
   CIDR range (e.g. `10.0.0.0/28`), expanded and de-duplicated
   automatically, with a safety cap to prevent accidental huge scans.
@@ -34,9 +36,14 @@ banners, and produces ranked, actionable remediation reports.
   service offers on connect, for extra triage context.
 - **Multi-format reporting** — human-readable text, structured JSON, or
   CSV, printed to the console and saved to a timestamped file.
-- **Scriptable CLI or guided interactive menu** — pass flags for
-  automation/CI, or run with no arguments for a prompt-driven flow.
-- **Zero external dependencies** — Python standard library only.
+- **Persistent scan history** — every run is logged to SQLite
+  (`scan_history` / `scan_results`), queryable from the CLI or the web API.
+- **Three execution modes** — a scriptable quick-command CLI, a guided
+  interactive terminal menu, or a local browser dashboard.
+- **Zero external dependencies** — Python standard library only, for the
+  scan engine, the database layer, and the web server alike. (The
+  dashboard's charts load Chart.js from a CDN in the browser; nothing is
+  `pip install`ed.)
 
 ## Prerequisites
 
@@ -47,46 +54,73 @@ banners, and produces ranked, actionable remediation reports.
 
 1.  **Clone:** `git clone https://github.com/mohamedtechturf/Netpreter`
 2.  **Navigate:** `cd Netpreter`
-4.  **Execute:** Run `python main.py` and enter the target hostname, IP address, or CIDR range when prompted.
+4.  **Execute:** Run `python netpreter.py` and enter the target hostname, IP address, or CIDR range when prompted.
 
 ## Usage
 
-**Interactive menu** (no arguments):
+Netpreter has three ways to run — pick whichever fits the moment.
 
-```bash
-python main.py
-```
-
-**Scriptable CLI:**
+### 1. Quick Command CLI (scriptable / CI-friendly)
 
 ```bash
 # Audit a single host against the curated risk-port list
-python main.py 192.168.1.10
+python netpreter.py 192.168.1.10
 
 # Audit multiple hosts and a small subnet, custom ports, JSON output
-python main.py "10.0.0.5,10.0.0.6,10.0.0.0/29" -p 22,80,443,1-1024 -f json
+python netpreter.py "10.0.0.5,10.0.0.6,10.0.0.0/29" -p 22,80,443,1-1024 -f json
 
 # Faster/slower scanning
-python main.py example.com -t 0.5 -T 200      # 0.5s timeout, 200 threads
-python main.py example.com --no-banner        # skip banner capture
-python main.py example.com --no-save          # print only, don't write a log
+python netpreter.py example.com -t 0.5 -T 200      # 0.5s timeout, 200 threads
+python netpreter.py example.com --no-banner        # skip banner capture
+python netpreter.py example.com --no-save          # print only, don't write a log
 ```
 
-Run `python main.py --help` for the full flag reference.
+Run `python netpreter.py --help` for the full flag reference.
 
+### 2. Interactive Menu CLI
+
+Run with no arguments for a guided, prompt-driven flow:
+
+```bash
+python netpreter.py
+```
+
+```
+=== Netpreter: Network Security Assessment & Remediation Tool ===
+1. Run Scan
+2. View Past History
+3. Launch Web Dashboard UI
+4. Exit
+```
+
+### 3. Web Dashboard UI
+
+Starts a local server and opens a browser tab with charts, scan history, and a
+searchable findings table:
+
+```bash
+python netpreter.py --web
+# -> serves http://127.0.0.1:5000/ and opens it in your default browser
+
+python netpreter.py --web --web-port 8000 --no-browser  # customize host/port, skip auto-open
+```
 
 ## Project layout
 
 ```
 Netpreter/
-├── main.py                  # thin CLI entry point
+├── netpreter.py              # CLI entry point (all 3 execution modes)
 ├── netpreter/
-│   ├── __init__.py          # package metadata/version
-│   ├── database.py          # port -> risk/remediation reference data
-│   ├── scanner.py           # target resolution + concurrent scan engine
-│   ├── report.py            # text/JSON/CSV report rendering & export
-│   └── cli.py                # argument parsing + interactive menu
-└── logs/                     # timestamped audit reports (created at runtime)
+│   ├── __init__.py           # package metadata/version
+│   ├── db.py                 # SQLite persistence layer (schema, seeding, queries)
+│   ├── scanner.py            # target resolution + concurrent scan engine
+│   ├── report.py             # text/JSON/CSV report rendering & export
+│   ├── cli.py                 # argument parsing + interactive menu + mode dispatch
+│   └── web_server.py         # stdlib http.server-based dashboard + JSON API
+├── templates/
+│   └── index.html            # single-file dashboard (HTML/CSS/JS, Chart.js via CDN)
+├── netpreter.db               # created at runtime — SQLite database
+└── logs/                      # timestamped audit reports (created at runtime)
 ```
 
 ## How it works
@@ -97,11 +131,29 @@ Netpreter/
 2. **Scan** — each requested port is probed with a standard TCP
    connect() handshake via a thread pool; a closed/filtered port is
    simply skipped.
-3. **Classify** — every open port is looked up in the risk database and
-   tagged `Critical` / `High` / `Medium` / `Low` / `Info`; ports outside
-   the database still show up as unrecognized findings.
-4. **Report** — findings are sorted by severity, summarized per host and
-   overall, and rendered to text, JSON, or CSV.
+3. **Classify** — every open port is looked up in the SQLite-backed risk
+   database and tagged `Critical` / `High` / `Medium` / `Low` / `Info`;
+   ports outside the database still show up as unrecognized findings.
+   Findings are also cross-referenced against a curated CVE table.
+4. **Persist** — every completed run (target, duration, and any open
+   ports/banners) is written to `scan_history` / `scan_results` in
+   `netpreter.db`, whether the run came from the CLI or the web dashboard.
+5. **Report** — findings are sorted by severity, summarized per host and
+   overall, and rendered to text, JSON, or CSV — or browsed interactively
+   in the web dashboard's charts and results table.
+
+## Web Dashboard API
+
+The dashboard's frontend talks to a small JSON API, also usable directly:
+
+| Method | Path                | Description                                              |
+|--------|----------------------|------------------------------------------------------------|
+| GET    | `/`                  | Serves the dashboard (`templates/index.html`)             |
+| GET    | `/api/scans`         | Recent scan history (`?limit=N`, default 50)               |
+| GET    | `/api/scans/<id>`    | Open ports, remediation, and matched CVEs for one scan     |
+| GET    | `/api/stats`         | Aggregated stats: total scans, severity distribution, top open ports |
+| POST   | `/api/scan`          | `{"target": "...", "ports": "top", "timeout": 1.0, "threads": 100, "banner": true}` — queues a scan on a background thread |
+| GET    | `/api/scan/<queue_id>` | Poll status of a queued scan (`queued` / `running` / `done` / `error`) |
 
 ## Limitations & Roadmap
 
@@ -114,6 +166,7 @@ Netpreter/
 - **No Active OS Detection**: Active operating system fingerprinting is outside the current scope. System intelligence is strictly limited to passive service banner grabbing.
 - **IPv4-Centric Scanning**: While foundational address validation logic supports both IPv4 and IPv6 patterns, the core socket handling engine currently only operates end-to-end over IPv4 networks.
 - **Per-Host Thread Distribution**: Multi-threading optimizations are designed to scale concurrently *across multiple target hosts* rather than utilizing aggressive multi-threading against a single individual host.
+- **Missing Comprehensive Documentation Website**: A dedicated, end-to-end documentation platform explaining the inner architecture is currently planned, which will provide top-to-bottom insights.
 
 ---
 
@@ -126,4 +179,4 @@ The developer assumes **absolute zero liability** and is not responsible for any
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU GPLv3 LICENSE - see the [LICENSE](LICENSE) file for details.

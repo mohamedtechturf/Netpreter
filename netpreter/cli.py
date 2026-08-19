@@ -11,10 +11,11 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+import webbrowser
 from typing import List, Sequence
 
 from . import __version__
-from .database import TOP_PORTS
+from .db import get_db
 from .report import render_text, save_report
 from .scanner import (
     TargetResolutionError,
@@ -25,6 +26,9 @@ from .scanner import (
 
 logger = logging.getLogger("netpreter")
 
+DEFAULT_WEB_HOST = "127.0.0.1"
+DEFAULT_WEB_PORT = 5000
+
 
 def parse_port_spec(spec: str) -> List[int]:
     """
@@ -34,11 +38,11 @@ def parse_port_spec(spec: str) -> List[int]:
       "22,80,443"
       "1-1024"
       "22,80,1000-2000"
-    The special value "top" selects the built-in curated risk database ports.
+    The special value "top" selects the curated risk database ports (SQLite-backed).
     """
     spec = spec.strip().lower()
     if spec in ("top", "default", ""):
-        return list(TOP_PORTS)
+        return list(get_db().get_top_ports())
 
     ports: set[int] = set()
     for chunk in spec.split(","):
@@ -126,11 +130,54 @@ def build_parser() -> argparse.ArgumentParser:
         help="Enable verbose (debug) logging to stderr.",
     )
     parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Launch the local Web Dashboard UI instead of scanning from the CLI.",
+    )
+    parser.add_argument(
+        "--web-host",
+        default=DEFAULT_WEB_HOST,
+        help=f"Host/interface for the Web Dashboard UI (default: {DEFAULT_WEB_HOST}).",
+    )
+    parser.add_argument(
+        "--web-port",
+        type=int,
+        default=DEFAULT_WEB_PORT,
+        help=f"Port for the Web Dashboard UI (default: {DEFAULT_WEB_PORT}).",
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="When launching the Web Dashboard UI, don't auto-open a browser tab.",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"netpreter {__version__}",
     )
     return parser
+
+
+def launch_web_dashboard(host: str = DEFAULT_WEB_HOST, port: int = DEFAULT_WEB_PORT, open_browser: bool = True) -> int:
+    """Start the zero-dependency web dashboard server and (optionally) open a browser tab."""
+    from .web_server import serve_forever
+
+    url = f"http://{host}:{port}/"
+    print(f"\n[*] Netpreter v{__version__} — Web Dashboard")
+    print(f"[*] Serving on {url}")
+    print("[*] Press Ctrl+C to stop.\n")
+
+    if open_browser:
+        try:
+            webbrowser.open(url)
+        except Exception as exc:  # pragma: no cover - best effort only
+            logger.debug("Could not auto-open browser: %s", exc)
+
+    try:
+        serve_forever(host, port)
+    except KeyboardInterrupt:
+        print("\n[*] Web Dashboard stopped.")
+    return 0
 
 
 def _progress_printer(host: str, completed: int, total: int) -> None:
@@ -167,6 +214,11 @@ def run_scan(target_spec: str, ports: Sequence[int], args: argparse.Namespace) -
         progress_callback=_progress_printer,
     )
 
+    db = get_db()
+    for report in reports:
+        if not report.error:
+            db.record_scan(report.host, report.duration_seconds, report.open_ports)
+
     if args.format == "text":
         print("\n" + render_text(reports))
     else:
@@ -180,29 +232,69 @@ def run_scan(target_spec: str, ports: Sequence[int], args: argparse.Namespace) -
     return 0
 
 
-def interactive_menu(args: argparse.Namespace) -> int:
-    """Guided, prompt-driven flow for users who don't want to pass CLI flags."""
+def _scan_submenu(args: argparse.Namespace) -> None:
     while True:
-        print("\n=== Netpreter: Network Security Assessment & Remediation Tool ===")
+        print("\n--- Run Scan ---")
         print("1. Scan Local Host (127.0.0.1)")
         print("2. Scan Local Network Interface IP")
         print("3. Scan Custom Target (IP, hostname, or CIDR range)")
-        print("4. Exit")
+        print("4. Back to Main Menu")
 
         choice = input("\nSelect an option [1-4]: ").strip()
 
         if choice == "1":
             run_scan("127.0.0.1", args.ports, args)
+            return
         elif choice == "2":
             local_ip = get_local_ip()
             print(f"[*] Detected local interface IP: {local_ip}")
             run_scan(local_ip, args.ports, args)
+            return
         elif choice == "3":
             target = input("Enter target IP, hostname, or CIDR range: ").strip()
             if not target:
                 print("[-] Target cannot be empty.")
                 continue
             run_scan(target, args.ports, args)
+            return
+        elif choice == "4":
+            return
+        else:
+            print("[-] Invalid selection. Please choose an option from 1 to 4.")
+
+
+def _print_history(db) -> None:
+    history = db.get_scan_history(limit=20)
+    if not history:
+        print("\n[*] No past scans recorded yet.")
+        return
+    print(f"\n{'ID':<5}{'Target':<20}{'Timestamp':<22}{'Duration':<10}{'Open Ports'}")
+    print("-" * 75)
+    for row in history:
+        print(
+            f"{row['id']:<5}{row['target_ip']:<20}{row['timestamp']:<22}"
+            f"{row['scan_duration']:.2f}s{'':<3}{row['open_port_count']}"
+        )
+
+
+def interactive_menu(args: argparse.Namespace) -> int:
+    """Guided, prompt-driven flow for users who don't want to pass CLI flags."""
+    db = get_db()
+    while True:
+        print("\n=== Netpreter: Network Security Assessment & Remediation Tool ===")
+        print("1. Run Scan")
+        print("2. View Past History")
+        print("3. Launch Web Dashboard UI")
+        print("4. Exit")
+
+        choice = input("\nSelect an option [1-4]: ").strip()
+
+        if choice == "1":
+            _scan_submenu(args)
+        elif choice == "2":
+            _print_history(db)
+        elif choice == "3":
+            launch_web_dashboard(args.web_host, args.web_port, open_browser=not args.no_browser)
         elif choice == "4":
             print("[*] Exiting audit tool.")
             return 0
@@ -220,6 +312,8 @@ def main(argv: List[str] = None) -> int:
     )
 
     try:
+        if args.web:
+            return launch_web_dashboard(args.web_host, args.web_port, open_browser=not args.no_browser)
         if args.target:
             return run_scan(args.target, args.ports, args)
         return interactive_menu(args)

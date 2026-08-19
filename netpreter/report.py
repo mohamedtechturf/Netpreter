@@ -15,8 +15,13 @@ import os
 import time
 from typing import List
 
-from .database import SEVERITY_ORDER, SEVERITY_WEIGHT, get_port_info
+from .db import SEVERITY_ORDER, SEVERITY_WEIGHT, get_db
 from .scanner import HostReport
+
+
+def get_port_info(port: int):
+    """Look up risk metadata for a port via the SQLite-backed database."""
+    return get_db().get_port_info(port)
 
 _BANNER = "=" * 80
 _RULE = "-" * 80
