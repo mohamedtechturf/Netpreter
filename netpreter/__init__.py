@@ -13,5 +13,5 @@ This package is intended for authorized security assessments of systems you
 own or are explicitly permitted to test.
 """
 
-__version__ = "2.0.0"
+__version__ = "1.0.0"
 __all__ = ["__version__"]
