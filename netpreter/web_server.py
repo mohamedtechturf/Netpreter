@@ -41,7 +41,17 @@ logger = logging.getLogger("netpreter")
 _PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__))
 _REPO_ROOT = os.path.dirname(_PACKAGE_DIR)
 _TEMPLATES_DIR = os.path.join(_REPO_ROOT, "templates")
+_STATIC_DIR = os.path.join(_REPO_ROOT, "static")
 _INDEX_HTML_PATH = os.path.join(_TEMPLATES_DIR, "index.html")
+
+# Static assets served alongside the dashboard. Maps the URL path the
+# frontend requests to (file-on-disk, content-type).
+_STATIC_ASSETS = {
+    "/styles.css": (os.path.join(_TEMPLATES_DIR, "styles.css"), "text/css; charset=utf-8"),
+    "/scripts.js": (os.path.join(_TEMPLATES_DIR, "scripts.js"), "application/javascript; charset=utf-8"),
+    "/static/np.ico": (os.path.join(_STATIC_DIR, "np.ico"), "image/x-icon"),
+    "/static/chart.umd.min.js": (os.path.join(_STATIC_DIR, "chart.umd.min.js"), "application/javascript; charset=utf-8"),
+}
 
 _SCAN_ID_RE = re.compile(r"^/api/scans/(\d+)$")
 _QUEUE_ID_RE = re.compile(r"^/api/scan/([0-9a-fA-F-]+)$")
@@ -157,6 +167,11 @@ class NetpreterRequestHandler(BaseHTTPRequestHandler):
 
         if path in ("/", "/index.html"):
             self._send_file(_INDEX_HTML_PATH, "text/html; charset=utf-8")
+            return
+
+        if path in _STATIC_ASSETS:
+            file_path, content_type = _STATIC_ASSETS[path]
+            self._send_file(file_path, content_type)
             return
 
         if path == "/api/stats":
