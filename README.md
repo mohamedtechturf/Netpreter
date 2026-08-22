@@ -2,7 +2,7 @@
   <img alt="Netpreter" src="https://github.com/user-attachments/assets/4c672463-26f5-4b66-845d-9b4b219f46e0" width="100%">
 </a>
 
-[![License: GPL v3](https://shields.io)](https://gnu.org)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Linux](https://img.shields.io/badge/Supports-Linux-orange.svg)
 ![macOS](https://img.shields.io/badge/Supports-macOS-white.svg)
 ![windows](https://img.shields.io/badge/Supports-Windows-blue.svg)
