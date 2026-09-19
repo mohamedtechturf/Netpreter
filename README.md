@@ -189,3 +189,7 @@ The developer assumes **absolute zero liability** and is not responsible for any
 ## License
 
 This project is licensed under the GNU GPLv3 LICENSE - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<img width="1800" height="1200" alt="netpretersplash" src="https://github.com/user-attachments/assets/f0f2e091-a21e-440d-af1f-711044c1ca14" />
