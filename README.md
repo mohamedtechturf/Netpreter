@@ -77,6 +77,15 @@ python netpreter.py example.com --no-save          # print only, don't write a l
 
 Run `python netpreter.py --help` for the full flag reference.
 
+## Note
+
+If the Quick Command CLI doesn't work or show output. Try using
+
+```bash
+python -3 netpreter.py 192.168.1.10
+```
+or just reinstall/update python
+
 ### 2. Interactive Menu CLI
 
 Run with no arguments for a guided, prompt-driven flow:
