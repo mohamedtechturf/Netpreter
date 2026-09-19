@@ -77,7 +77,7 @@ python netpreter.py example.com --no-save          # print only, don't write a l
 
 Run `python netpreter.py --help` for the full flag reference.
 
-## Note
+# Note
 
 If the Quick Command CLI doesn't work or show output. Try using
 
