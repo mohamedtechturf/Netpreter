@@ -60,7 +60,7 @@ command line or from a local browser dashboard.
 
 Netpreter has three ways to run — pick whichever fits the moment.
 
-### 1. Quick Command CLI (scriptable / CI-friendly)
+# 1. Quick Command CLI (scriptable / CI-friendly)
 
 ```bash
 # Audit a single host against the curated risk-port list
@@ -77,7 +77,7 @@ python netpreter.py example.com --no-save          # print only, don't write a l
 
 Run `python netpreter.py --help` for the full flag reference.
 
-# Note
+### Note
 
 If the Quick Command CLI doesn't work or show output. Try using
 
@@ -86,7 +86,7 @@ python -3 netpreter.py 192.168.1.10
 ```
 or just reinstall/update python
 
-### 2. Interactive Menu CLI
+# 2. Interactive Menu CLI
 
 Run with no arguments for a guided, prompt-driven flow:
 
@@ -102,7 +102,7 @@ python netpreter.py
 4. Exit
 ```
 
-### 3. Web Dashboard UI
+# 3. Web Dashboard UI
 
 Starts a local server and opens a browser tab with charts, scan history, and a
 searchable findings table:
