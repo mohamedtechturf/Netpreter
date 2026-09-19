@@ -79,7 +79,7 @@ Run `python netpreter.py --help` for the full flag reference.
 
 ### Note
 
-If the Quick Command CLI doesn't work or show output. Try using
+If the Quick Command CLI doesn't work or show output, try using:
 
 ```bash
 python -3 netpreter.py 192.168.1.10
